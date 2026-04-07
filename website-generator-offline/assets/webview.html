@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <title>Website Preview</title>
+    <style>
+      :root {
+        --primary: #0ea5e9;
+        --bg: #f3f7fb;
+        --text: #111827;
+        --muted: #4b5563;
+        --card: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 0% 0%, rgba(14, 165, 233, 0.14), transparent 40%),
+          radial-gradient(circle at 100% 0%, rgba(17, 24, 39, 0.1), transparent 36%),
+          var(--bg);
+      }
+
+      .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 20px 16px 28px;
+      }
+
+      .hero {
+        background: linear-gradient(135deg, var(--primary), #111827);
+        color: #fff;
+        border-radius: 16px;
+        padding: 28px 20px;
+        box-shadow: 0 14px 34px rgba(17, 24, 39, 0.22);
+      }
+
+      .title {
+        margin: 0;
+        line-height: 1.1;
+        font-size: clamp(26px, 7vw, 44px);
+      }
+
+      .tagline {
+        margin: 12px 0 0;
+        opacity: 0.94;
+        line-height: 1.5;
+        font-size: clamp(14px, 3.6vw, 18px);
+      }
+
+      .cta {
+        margin-top: 18px;
+        display: inline-block;
+        border: 0;
+        border-radius: 10px;
+        padding: 11px 16px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #111827;
+        background: #fff;
+      }
+
+      .grid {
+        margin-top: 16px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid rgba(17, 24, 39, 0.08);
+        border-radius: 14px;
+        padding: 14px;
+      }
+
+      .card h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+        font-size: 14px;
+      }
+
+      @media (min-width: 800px) {
+        .wrap {
+          padding: 28px 22px 34px;
+        }
+
+        .grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="hero">
+        <h1 id="site-title" class="title">Nova Landing</h1>
+        <p id="site-tagline" class="tagline">Uma experiência web moderna, rápida e pronta para uso offline.</p>
+        <button id="site-cta" class="cta" type="button">Começar agora</button>
+      </section>
+
+      <section id="sections" class="grid" aria-label="Conteúdo do site"></section>
+    </main>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get('data');
+
+      function normalizeColor(value) {
+        if (typeof value !== 'string') return '#0ea5e9';
+        const v = value.trim();
+        if (/^#[0-9a-fA-F]{6}$/.test(v) || /^#[0-9a-fA-F]{3}$/.test(v)) {
+          return v;
+        }
+        return '#0ea5e9';
+      }
+
+      function render(data) {
+        const titleEl = document.getElementById('site-title');
+        const tagEl = document.getElementById('site-tagline');
+        const ctaEl = document.getElementById('site-cta');
+        const sectionsEl = document.getElementById('sections');
+
+        const title = typeof data.siteTitle === 'string' && data.siteTitle.trim() ? data.siteTitle.trim() : 'Nova Landing';
+        const tagline = typeof data.tagline === 'string' && data.tagline.trim()
+          ? data.tagline.trim()
+          : 'Uma experiência web moderna, rápida e pronta para uso offline.';
+        const ctaText = typeof data.ctaText === 'string' && data.ctaText.trim() ? data.ctaText.trim() : 'Começar agora';
+
+        titleEl.textContent = title;
+        tagEl.textContent = tagline;
+        ctaEl.textContent = ctaText;
+
+        const primary = normalizeColor(data.primaryColor);
+        document.documentElement.style.setProperty('--primary', primary);
+
+        const sections = Array.isArray(data.sections) && data.sections.length
+          ? data.sections.slice(0, 6)
+          : [
+              { title: 'Sobre o projeto', content: 'Este preview foi gerado para visualização imediata no chat.' },
+              { title: 'Diferenciais', content: 'Design limpo, responsivo e estrutura pronta para evoluir.' },
+              { title: 'Próximos passos', content: 'Refinar conteúdo, branding e converter para versão final de produção.' }
+            ];
+
+        sectionsEl.innerHTML = '';
+        sections.forEach((section) => {
+          const card = document.createElement('article');
+          card.className = 'card';
+
+          const h3 = document.createElement('h3');
+          h3.textContent = typeof section.title === 'string' && section.title.trim() ? section.title.trim() : 'Seção';
+
+          const p = document.createElement('p');
+          p.textContent = typeof section.content === 'string' && section.content.trim()
+            ? section.content.trim()
+            : 'Conteúdo desta seção.';
+
+          card.appendChild(h3);
+          card.appendChild(p);
+          sectionsEl.appendChild(card);
+        });
+      }
+
+      try {
+        const parsed = raw ? JSON.parse(decodeURIComponent(raw)) : {};
+        render(parsed);
+      } catch (_) {
+        render({});
+      }
+    </script>
+  </body>
+</html>
